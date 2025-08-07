@@ -1,8 +1,6 @@
 import os
 import json
-from mainxyz import *
-from user import *
-from admin import *
+from data import *
 
 def addproduct():
     print("Welcome To Inventory Control (Here you can add product)")

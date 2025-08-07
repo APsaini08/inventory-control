@@ -21,7 +21,8 @@ def admin_page():
         if val == 1:
             adminSignup()
         elif val == 2:
-            adminLogin()
+            if adminLogin():
+                adminMenu()
         elif val == 3:
             print("Thanks. Goodbye!")
             sys.exit()
@@ -69,11 +70,11 @@ def adminLogin():
             if acc["id"] == adminId:
                 if acc["password"] == password:
                     print("Login successful!\n")
-                    adminMenu()
-                    return
+                    return True
                 else:
                     print("Error: Incorrect password.\n")
                     break 
+        return False
 
 def adminMenu():
     while True:

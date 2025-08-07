@@ -1,1 +1,10 @@
-[]
+[
+    {
+        "P-ID": "P001",
+        "Name": "Shirt",
+        "Type": "Full-Sleve",
+        "Quantity": 100,
+        "Sold": 0,
+        "Status": "Available"
+    }
+]

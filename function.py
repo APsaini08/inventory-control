@@ -1,13 +1,13 @@
 import os
 import json
 from data import *
-from admin import *
-from user import *
 
 def addproduct():
     print("\n=== Add Product to Inventory ===")
     while True:
-        pId = input("Enter Product ID: ")
+        pId = input("Enter Product ID/exit: ")
+        if pId.strip().lower() == "exit":
+            return
         if checkProductId(pId):
             print("Error: Product ID already exists.\n")
             continue
@@ -38,7 +38,6 @@ def addproduct():
         save_data("store.json", data)
         print("Product added successfully!\n")
 
-    adminMenu()
 
 
 def checkProductId(Id):
@@ -49,7 +48,7 @@ def checkProductId(Id):
     return False
 
 
-def updateProductQuantity():
+def updateProductQuentity():
     print("\n=== Update Product Quantity ===")
     data = load_data("store.json")
     while True:
@@ -74,7 +73,6 @@ def updateProductQuantity():
                 print("Quantity updated successfully!\n")
                 break
 
-    adminMenu()
 
 
 def deleteProduct():
@@ -97,7 +95,6 @@ def deleteProduct():
                 print(f"Product {pId} marked as Deleted.\n")
                 break
 
-    adminMenu()
 
 
 def viewInventoryAdmin():
@@ -106,7 +103,7 @@ def viewInventoryAdmin():
     print("P-ID\tName\t\tType\t\tQuantity\tSold\t\tStatus")
     for product in data:
         print(f'{product["P-ID"]}\t{product["Name"]}\t{product["Type"]}\t{product["Quantity"]}\t\t{product["Sold"]}\t\t{product["Status"]}')
-    adminMenu()
+ 
 
 
 def generateReport():
@@ -119,7 +116,7 @@ def generateReport():
             report.write(f'{product["P-ID"]}\t{product["Name"]}\t{product["Type"]}\t{product["Quantity"]}\t\t{product["Sold"]}\t{product["Status"]}\n')
 
     print("Report generated as 'report.txt'.")
-    adminMenu()
+
 
 
 def viewInventoryUser():
@@ -130,7 +127,7 @@ def viewInventoryUser():
         if product["Status"].lower() != "available":
             continue
         print(f'{product["P-ID"]}\t{product["Name"]}\t{product["Type"]}')
-    userMenu()
+
 
 
 def searchProduct():
@@ -147,7 +144,7 @@ def searchProduct():
     if not found:
         print("No matching products found.")
 
-    userMenu()
+
 
 
 def checkAvailability():
@@ -157,7 +154,6 @@ def checkAvailability():
 
     if not checkProductId(pId):
         print("Error: Invalid Product ID.\n")
-        userMenu()
         return
 
     for product in data:
@@ -167,5 +163,3 @@ def checkAvailability():
             else:
                 print("Product is NOT Available.")
             break
-
-    userMenu()

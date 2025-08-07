@@ -1,128 +1,171 @@
 import os
 import json
 from data import *
+from admin import *
+from user import *
 
 def addproduct():
-    print("Welcome To Inventory Control (Here you can add product)")
+    print("\n=== Add Product to Inventory ===")
     while True:
-        pId = input("Enter the product ID:-")
-        pName = input("Enter the product name/(exit go to main Menu):-")
-        pType = input("Enter the product type:-")
-        pQuentity = int(input("Enter the Quentity of product:-"))
-        pSoled = input("Quentity solled:-")
+        pId = input("Enter Product ID: ")
+        if checkProductId(pId):
+            print("Error: Product ID already exists.\n")
+            continue
 
-        data = load_data("store.json")
+        pName = input("Enter Product Name (type 'exit' to return): ").strip()
         if pName.lower() == "exit":
             break
+
+        pType = input("Enter Product Type: ")
+        try:
+            pQuantity = int(input("Enter Quantity: "))
+            pSold = int(input("Enter Quantity Sold: "))
+        except ValueError:
+            print("Error: Quantity must be a number.")
+            continue
+
         product = {
-            "P-ID":pId,
-            "Name":pName,
-            "Type":pType,
-            "Quentity":pQuentity,
-            "Solled":pSoled,
-            "Status":"Available"
+            "P-ID": pId,
+            "Name": pName,
+            "Type": pType,
+            "Quantity": pQuantity,
+            "Sold": pSold,
+            "Status": "Available"
         }
+
+        data = load_data("store.json")
         data.append(product)
-    save_data(data)
+        save_data("store.json", data)
+        print("Product added successfully!\n")
+
     adminMenu()
+
 
 def checkProductId(Id):
     data = load_data("store.json")
     for product in data:
         if product["P-ID"] == Id:
             return True
-    
     return False
 
-def updateProductQuentity():
-    print("Welcome to inventory control Here you can update the Quentity of Product")
+
+def updateProductQuantity():
+    print("\n=== Update Product Quantity ===")
     data = load_data("store.json")
     while True:
-        pId = input("Enter the Product Id/exit to admin Menu:-")
+        pId = input("Enter Product ID (or type 'exit' to return): ")
         if pId.lower() == "exit":
-            adminMenu()
-        if not checkProductId(pId):
-            print("Error: Enter the correct Product-ID")
-            updateProductQuentity()
             break
-        pQuentity = int(input("Enter the Quentity to ADD:-"))
-        for product in data :
-            if product["P_ID"] == pId:
-                product["Quentity"] += pQuentity
-                save_data(data)
+
+        if not checkProductId(pId):
+            print("Error: Product ID not found.\n")
+            continue
+
+        try:
+            addQty = int(input("Enter Quantity to ADD: "))
+        except ValueError:
+            print("Error: Quantity must be a number.\n")
+            continue
+
+        for product in data:
+            if product["P-ID"] == pId:
+                product["Quantity"] += addQty
+                save_data("store.json", data)
+                print("Quantity updated successfully!\n")
                 break
+
     adminMenu()
 
-def deleteProduct():
-    print("Welcome to Inventory Control Here you can Delete the product")
-    data = load_data("store.json")
-    while True:
-        pId = input("Enter the Product id/exit to go to admin menu:-")
 
-        if pId.lower == "exit":
-            adminMenu()
-        if not checkProductId(pId):
-            print("Erro: Enter valid Product Id")
-            deleteProduct()
+def deleteProduct():
+    print("\n=== Delete Product ===")
+    data = load_data("store.json")
+
+    while True:
+        pId = input("Enter Product ID to delete (or 'exit'): ").strip()
+        if pId.lower() == "exit":
             break
+
+        if not checkProductId(pId):
+            print("Error: Invalid Product ID.\n")
+            continue
+
         for product in data:
             if product["P-ID"] == pId:
                 product["Status"] = "Deleted"
+                save_data("store.json", data)
+                print(f"Product {pId} marked as Deleted.\n")
                 break
-        deleteProduct()
-
-def viewInventoryAdmin():
-    print("Welcome to Inventory Control System - Here is you all Inventory")
-    data = load_data("store.json")
-    print("P-ID    Product-Name    Product-Type    Product-Quentity    Product-Solled    Product-Status")
-    for product in data:
-        print(f"{product["P-ID"]}    {product["Name"]}    {product["Type"]}    {product["Quentity"]}    {product["Solled"]}    {product["Status"]}")
 
     adminMenu()
 
-def generateReport():
-    print("Wait for few second you will get the report in txt format")
+
+def viewInventoryAdmin():
+    print("\n=== Full Inventory (Admin View) ===")
     data = load_data("store.json")
+    print("P-ID\tName\t\tType\t\tQuantity\tSold\t\tStatus")
+    for product in data:
+        print(f'{product["P-ID"]}\t{product["Name"]}\t{product["Type"]}\t{product["Quantity"]}\t\t{product["Sold"]}\t\t{product["Status"]}')
+    adminMenu()
+
+
+def generateReport():
+    print("Generating report...")
+    data = load_data("store.json")
+
     with open("report.txt", "w") as report:
-        print("Product-Id       Product-Name        Product-Type        Product-Quentity        Product-Solled      Product-Status")
-        for user in data:
-            report.write(f"{product[P-ID]}      {product[Name]}       {product["Type"]}      {product["Quentity"]}      {product["Solled"]}     {product["Status"]}")
+        report.write("P-ID\tName\tType\tQuantity\tSold\tStatus\n")
+        for product in data:
+            report.write(f'{product["P-ID"]}\t{product["Name"]}\t{product["Type"]}\t{product["Quantity"]}\t\t{product["Sold"]}\t{product["Status"]}\n')
+
+    print("Report generated as 'report.txt'.")
     adminMenu()
 
 
 def viewInventoryUser():
-    print("Welcome to Inventory Control System - Here is you all Inventory")
+    print("\n=== Inventory (User View) ===")
     data = load_data("store.json")
-    print("P-ID    Product-Name    Product-Type")
+    print("P-ID\tName\tType")
     for product in data:
-        if product["Status"] == "Not-Available":
+        if product["Status"].lower() != "available":
             continue
-        print(f"{product["P-ID"]}    {product["Name"]}    {product["Type"]}")
-    
+        print(f'{product["P-ID"]}\t{product["Name"]}\t{product["Type"]}')
     userMenu()
+
+
 def searchProduct():
-    print("Welcome to Inventory-control System (Here you can search Product)")
+    print("\n=== Search Product by Type ===")
     data = load_data("store.json")
+    pType = input("Enter Product Type: ").strip()
 
-    ptype = input("Enter product-ID")
-
+    found = False
     for product in data:
-        if product["Type"] == ptype:
-            print(product["Name"])
-        
+        if product["Type"].lower() == pType.lower() and product["Status"].lower() == "available":
+            print(f'Found: {product["Name"]} (ID: {product["P-ID"]})')
+            found = True
+
+    if not found:
+        print("No matching products found.")
+
     userMenu()
+
 
 def checkAvailability():
-    print("Welcome to Inventory-Control (Here you can Check the Availability of product)")
-
-    pId = input("Enter the product-Id:-")
+    print("\n=== Check Product Availability ===")
+    data = load_data("store.json")
+    pId = input("Enter Product ID: ").strip()
 
     if not checkProductId(pId):
-        print("Error: Enter Correct Product-Id")
-        checkAvailability()
+        print("Error: Invalid Product ID.\n")
+        userMenu()
+        return
+
     for product in data:
-        if product["Status"] == "Available":
-            print("Product is Available")
+        if product["P-ID"] == pId:
+            if product["Status"].lower() == "available":
+                print("Product is Available.")
+            else:
+                print("Product is NOT Available.")
             break
 
     userMenu()
